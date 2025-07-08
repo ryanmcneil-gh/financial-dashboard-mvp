@@ -125,10 +125,10 @@ with st.expander("yfinance Connection Test - S&P 500 (^GSPC)", expanded=True):
 
         # Debug: Show data info
         st.write(f"Data shape: {sample_data.shape}")
-        st.write(f"Date column type: {sample_data['Date'].dtype}")
-        st.write(f"Close column type: {sample_data['Close'].dtype}")
-        st.write("First few dates:")
-        st.write(sample_data['Date'].head())
+        st.write("Column names:")
+        st.write(list(sample_data.columns))
+        st.write("First few rows:")
+        st.write(sample_data.head())
 
         fig = go.Figure()
         fig.add_trace(go.Scatter(
