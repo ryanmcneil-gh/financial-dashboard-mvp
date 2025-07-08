@@ -227,6 +227,27 @@ with st.expander("📈 Broad Asset Class Performance", expanded=True):
             template='plotly_white',
             height=500
         )
+        
+        st.plotly_chart(fig, use_container_width=True)
+        
+        # Show current performance summary
+        st.subheader("Current Performance Summary")
+        perf_data = []
+        for asset_name, data in asset_data.items():
+            if 'Close' in data.columns and len(data) > 1:
+                start_price = data['Close'].iloc[0]
+                end_price = data['Close'].iloc[-1]
+                performance = ((end_price - start_price) / start_price) * 100
+                perf_data.append({
+                    "Asset": asset_name,
+                    "Performance": f"{performance:+.1f}%"
+                })
+        
+        if perf_data:
+            perf_df = pd.DataFrame(perf_data)
+            st.dataframe(perf_df, use_container_width=True, hide_index=True)
+    else:
+        st.error("Unable to fetch data for market overview assets")
 
 # Equity Indices placeholder
 with st.expander("🇺🇸 US Major Indices", expanded=False):
