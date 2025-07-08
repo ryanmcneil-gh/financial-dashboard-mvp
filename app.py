@@ -59,14 +59,6 @@ with st.expander("ℹ️ About This Dashboard"):
 def get_historical_data(ticker, period_string, extra_days=0):
     """
     Fetch historical data for a given ticker with proper timeframe support
-    
-    Args:
-        ticker (str): Stock ticker symbol (e.g., '^GSPC', 'AAPL')
-        period_string (str): Streamlit timeframe ('1M', '3M', '6M', '1Y', '2Y')
-        extra_days (int): Additional days for moving average calculations
-        
-    Returns:
-        pd.DataFrame: Historical price data or empty DataFrame on error
     """
     try:
         # Map Streamlit timeframe to yfinance format
@@ -80,29 +72,8 @@ def get_historical_data(ticker, period_string, extra_days=0):
         
         yf_period = timeframe_mapping.get(period_string, "3mo")
         
-        # For moving averages, we need extra historical data
-        if extra_days > 0:
-            # Calculate start date manually for longer periods
-            from datetime import datetime, timedelta
-            
-            period_days = {
-                "1M": 30, "3M": 90, "6M": 180, 
-                "1Y": 365, "2Y": 730
-            }
-            
-            total_days = period_days.get(period_string, 90) + extra_days
-            end_date = datetime.now()
-            start_date = end_date - timedelta(days=total_days)
-            
-            data = yf.download(
-                ticker, 
-                start=start_date.strftime('%Y-%m-%d'),
-                end=end_date.strftime('%Y-%m-%d'),
-                progress=False
-            )
-        else:
-            # Use period directly for simpler cases
-            data = yf.download(ticker, period=yf_period, progress=False)
+        # Always use period for simplicity in MVP
+        data = yf.download(ticker, period=yf_period, progress=False, auto_adjust=True)
         
         if data.empty:
             st.warning(f"No data found for ticker: {ticker}")
