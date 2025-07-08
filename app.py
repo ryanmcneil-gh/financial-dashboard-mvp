@@ -72,13 +72,17 @@ def get_historical_data(ticker, period_string, extra_days=0):
         
         yf_period = timeframe_mapping.get(period_string, "3mo")
         
-        # Always use period for simplicity in MVP
+        # Fetch data
         data = yf.download(ticker, period=yf_period, progress=False, auto_adjust=True)
         
         if data.empty:
             st.warning(f"No data found for ticker: {ticker}")
             return pd.DataFrame()
-            
+        
+        # Flatten column names if they're multi-level
+        if isinstance(data.columns, pd.MultiIndex):
+            data.columns = [col[0] for col in data.columns]
+        
         # Reset index to make Date a column
         data = data.reset_index()
         
