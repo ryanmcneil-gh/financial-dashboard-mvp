@@ -151,23 +151,31 @@ with st.expander("yfinance Connection Test - S&P 500 (^GSPC)", expanded=True):
         
         # Simple price chart
         st.subheader("Sample Price Chart")
+
+        # Debug: Show data info
+        st.write(f"Data shape: {sample_data.shape}")
+        st.write(f"Date column type: {sample_data['Date'].dtype}")
+        st.write(f"Close column type: {sample_data['Close'].dtype}")
+        st.write("First few dates:")
+        st.write(sample_data['Date'].head())
+
         fig = go.Figure()
         fig.add_trace(go.Scatter(
             x=sample_data['Date'],
             y=sample_data['Close'],
-            mode='lines',
+            mode='lines+markers',  # Added markers to see data points
             name='S&P 500 Close Price',
             line=dict(color='#1f77b4', width=2)
         ))
-        
+
         fig.update_layout(
-            title="S&P 500 - 3 Month Price Chart",
+            title=f"S&P 500 - {selected_timeframe} Price Chart",
             xaxis_title="Date",
             yaxis_title="Price (USD)",
             hovermode='x unified',
             template='plotly_white'
         )
-        
+
         st.plotly_chart(fig, use_container_width=True)
         
     else:
