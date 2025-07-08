@@ -176,7 +176,7 @@ with st.expander("yfinance Connection Test - S&P 500 (^GSPC)", expanded=True):
 # Placeholder sections for future phases
 st.header("📋 Dashboard Sections")
 
-# Market Overview - Broad Asset Class Performance
+# Market Overview - Broad Asset Class Performance (Updated)
 st.header("🌍 Market Overview")
 
 with st.expander("📈 Broad Asset Class Performance", expanded=True):
