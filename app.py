@@ -32,7 +32,7 @@ selected_timeframe = st.sidebar.selectbox(
 # Manual refresh button
 if st.sidebar.button("🔄 Manual Refresh", help="Click to refresh all data"):
     st.cache_data.clear()
-    st.experimental_rerun()
+    st.rerun()
 
 # Add timezone info
 st.sidebar.info("🕐 All times displayed in EDT (Eastern Daylight Time)")
