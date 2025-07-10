@@ -59,13 +59,6 @@ with st.expander("ℹ️ About This Dashboard"):
 def get_historical_data(ticker, period_string):
     """
     Fetch historical data for a given ticker
-    
-    Args:
-        ticker (str): Stock ticker symbol (e.g., '^GSPC', 'AAPL')
-        period_string (str): Streamlit timeframe ('1M', '3M', '6M', '1Y', '2Y')
-        
-    Returns:
-        pd.DataFrame: Historical price data or empty DataFrame on error
     """
     try:
         # Map Streamlit timeframe to yfinance format
@@ -85,6 +78,10 @@ def get_historical_data(ticker, period_string):
         if data.empty:
             st.warning(f"No data found for ticker: {ticker}")
             return pd.DataFrame()
+        
+        # Flatten column names if they're multi-level
+        if isinstance(data.columns, pd.MultiIndex):
+            data.columns = [col[0] for col in data.columns]
             
         # Reset index to make Date a column
         data = data.reset_index()
