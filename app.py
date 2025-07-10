@@ -360,15 +360,112 @@ with st.expander("💱 Major USD Currency Pairs", expanded=False):
                     )
             else:
                 st.warning(f"No data available for {pair_name}")
-                
-# Commodities placeholder
-with st.expander("🛢️ Energy Complex", expanded=False):
-    st.info("⚡ Energy commodities analysis coming in Phase 2...")
-    st.write("Will include: Crude Oil, Natural Gas, Gasoline")
 
+# Energy Complex
+with st.expander("🛢️ Energy Complex", expanded=False):
+    st.subheader("Energy Commodities")
+    
+    # Define energy commodities
+    energy_commodities = {
+        "CL=F": "Crude Oil (WTI)",
+        "NG=F": "Natural Gas",
+        "RB=F": "Gasoline"
+    }
+    
+    for ticker, name in energy_commodities.items():
+        data = get_historical_data(ticker, selected_timeframe)
+        
+        if not data.empty:
+            # Create line chart
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(
+                x=data['Date'],
+                y=data['Close'],
+                mode='lines',
+                name=name,
+                line=dict(width=2)
+            ))
+            
+            fig.update_layout(
+                title=f"{name} - {selected_timeframe}",
+                xaxis_title="Date",
+                yaxis_title="Price (USD)",
+                template='plotly_white',
+                height=300,
+                showlegend=False
+            )
+            
+            st.plotly_chart(fig, use_container_width=True)
+            
+            # Current price info
+            if len(data) > 1:
+                current_price = data['Close'].iloc[-1]
+                prev_price = data['Close'].iloc[-2]
+                change = current_price - prev_price
+                change_pct = (change / prev_price) * 100 if prev_price > 0 else 0
+                
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.metric(f"Current {name}", f"${current_price:.2f}")
+                with col2:
+                    st.metric("Change", f"${change:+.2f}", f"{change_pct:+.2f}%")
+            else:
+                st.metric(f"Current {name}", f"${data['Close'].iloc[-1]:.2f}")
+        else:
+            st.warning(f"No data available for {name}")
+
+# Precious Metals
 with st.expander("🥇 Precious Metals", expanded=False):
-    st.info("✨ Precious metals analysis coming in Phase 2...")
-    st.write("Will include: Gold, Silver, Platinum")
+    st.subheader("Precious Metals")
+    
+    # Define precious metals
+    precious_metals = {
+        "GC=F": "Gold",
+        "SI=F": "Silver", 
+        "PL=F": "Platinum"
+    }
+    
+    for ticker, name in precious_metals.items():
+        data = get_historical_data(ticker, selected_timeframe)
+        
+        if not data.empty:
+            # Create line chart
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(
+                x=data['Date'],
+                y=data['Close'],
+                mode='lines',
+                name=name,
+                line=dict(width=2)
+            ))
+            
+            fig.update_layout(
+                title=f"{name} - {selected_timeframe}",
+                xaxis_title="Date",
+                yaxis_title="Price (USD/oz)",
+                template='plotly_white',
+                height=300,
+                showlegend=False
+            )
+            
+            st.plotly_chart(fig, use_container_width=True)
+            
+            # Current price info
+            if len(data) > 1:
+                current_price = data['Close'].iloc[-1]
+                prev_price = data['Close'].iloc[-2]
+                change = current_price - prev_price
+                change_pct = (change / prev_price) * 100 if prev_price > 0 else 0
+                
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.metric(f"Current {name}", f"${current_price:.2f}/oz")
+                with col2:
+                    st.metric("Change", f"${change:+.2f}", f"{change_pct:+.2f}%")
+            else:
+                st.metric(f"Current {name}", f"${data['Close'].iloc[-1]:.2f}/oz")
+        else:
+            st.warning(f"No data available for {name}")
 
 # Advanced features placeholders
 with st.expander("📈 Treasury Yield Curve", expanded=False):
