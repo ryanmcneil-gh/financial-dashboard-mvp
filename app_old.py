@@ -56,14 +56,13 @@ with st.expander("ℹ️ About This Dashboard"):
 
 # yfinance connectivity test function
 @st.cache_data(ttl=300)  # Cache for 5 minutes
-def get_historical_data(ticker, period_string, extra_days=0):
+def get_historical_data(ticker, period_string):
     """
-    Fetch historical data for a given ticker with proper timeframe support
+    Fetch historical data for a given ticker
     
     Args:
         ticker (str): Stock ticker symbol (e.g., '^GSPC', 'AAPL')
         period_string (str): Streamlit timeframe ('1M', '3M', '6M', '1Y', '2Y')
-        extra_days (int): Additional days for moving average calculations
         
     Returns:
         pd.DataFrame: Historical price data or empty DataFrame on error
@@ -80,29 +79,8 @@ def get_historical_data(ticker, period_string, extra_days=0):
         
         yf_period = timeframe_mapping.get(period_string, "3mo")
         
-        # For moving averages, we need extra historical data
-        if extra_days > 0:
-            # Calculate start date manually for longer periods
-            from datetime import datetime, timedelta
-            
-            period_days = {
-                "1M": 30, "3M": 90, "6M": 180, 
-                "1Y": 365, "2Y": 730
-            }
-            
-            total_days = period_days.get(period_string, 90) + extra_days
-            end_date = datetime.now()
-            start_date = end_date - timedelta(days=total_days)
-            
-            data = yf.download(
-                ticker, 
-                start=start_date.strftime('%Y-%m-%d'),
-                end=end_date.strftime('%Y-%m-%d'),
-                progress=False
-            )
-        else:
-            # Use period directly for simpler cases
-            data = yf.download(ticker, period=yf_period, progress=False)
+        # Download data using period directly
+        data = yf.download(ticker, period=yf_period, progress=False)
         
         if data.empty:
             st.warning(f"No data found for ticker: {ticker}")
@@ -116,7 +94,7 @@ def get_historical_data(ticker, period_string, extra_days=0):
     except Exception as e:
         st.error(f"Error fetching data for {ticker}: {str(e)}")
         return pd.DataFrame()
-
+    
 # Test yfinance connectivity
 st.header("🔍 Data Connectivity Test")
 
@@ -151,23 +129,31 @@ with st.expander("yfinance Connection Test - S&P 500 (^GSPC)", expanded=True):
         
         # Simple price chart
         st.subheader("Sample Price Chart")
+
+        # Debug: Show data info
+        st.write(f"Data shape: {sample_data.shape}")
+        st.write("Column names:")
+        st.write(list(sample_data.columns))
+        st.write("First few rows:")
+        st.write(sample_data.head())
+
         fig = go.Figure()
         fig.add_trace(go.Scatter(
             x=sample_data['Date'],
             y=sample_data['Close'],
-            mode='lines',
+            mode='lines+markers',  # Added markers to see data points
             name='S&P 500 Close Price',
             line=dict(color='#1f77b4', width=2)
         ))
-        
+
         fig.update_layout(
-            title="S&P 500 - 3 Month Price Chart",
+            title=f"S&P 500 - {selected_timeframe} Price Chart",
             xaxis_title="Date",
             yaxis_title="Price (USD)",
             hovermode='x unified',
             template='plotly_white'
         )
-        
+
         st.plotly_chart(fig, use_container_width=True)
         
     else:
