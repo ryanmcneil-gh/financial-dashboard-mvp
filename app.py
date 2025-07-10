@@ -56,9 +56,16 @@ with st.expander("ℹ️ About This Dashboard"):
 
 # yfinance connectivity test function
 @st.cache_data(ttl=300)  # Cache for 5 minutes
-def get_historical_data(ticker, period_string, extra_days=0):
+def get_historical_data(ticker, period_string):
     """
-    Fetch historical data for a given ticker with proper timeframe support
+    Fetch historical data for a given ticker
+    
+    Args:
+        ticker (str): Stock ticker symbol (e.g., '^GSPC', 'AAPL')
+        period_string (str): Streamlit timeframe ('1M', '3M', '6M', '1Y', '2Y')
+        
+    Returns:
+        pd.DataFrame: Historical price data or empty DataFrame on error
     """
     try:
         # Map Streamlit timeframe to yfinance format
@@ -72,17 +79,13 @@ def get_historical_data(ticker, period_string, extra_days=0):
         
         yf_period = timeframe_mapping.get(period_string, "3mo")
         
-        # Fetch data
-        data = yf.download(ticker, period=yf_period, progress=False, auto_adjust=True)
+        # Download data using period directly
+        data = yf.download(ticker, period=yf_period, progress=False)
         
         if data.empty:
             st.warning(f"No data found for ticker: {ticker}")
             return pd.DataFrame()
-        
-        # Flatten column names if they're multi-level
-        if isinstance(data.columns, pd.MultiIndex):
-            data.columns = [col[0] for col in data.columns]
-        
+            
         # Reset index to make Date a column
         data = data.reset_index()
         
@@ -91,7 +94,7 @@ def get_historical_data(ticker, period_string, extra_days=0):
     except Exception as e:
         st.error(f"Error fetching data for {ticker}: {str(e)}")
         return pd.DataFrame()
-
+    
 # Test yfinance connectivity
 st.header("🔍 Data Connectivity Test")
 
