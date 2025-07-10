@@ -130,18 +130,11 @@ with st.expander("yfinance Connection Test - S&P 500 (^GSPC)", expanded=True):
         # Simple price chart
         st.subheader("Sample Price Chart")
 
-        # Debug: Show data info
-        st.write(f"Data shape: {sample_data.shape}")
-        st.write("Column names:")
-        st.write(list(sample_data.columns))
-        st.write("First few rows:")
-        st.write(sample_data.head())
-
         fig = go.Figure()
         fig.add_trace(go.Scatter(
             x=sample_data['Date'],
             y=sample_data['Close'],
-            mode='lines+markers',  # Added markers to see data points
+            mode='lines',  # Added markers to see data points
             name='S&P 500 Close Price',
             line=dict(color='#1f77b4', width=2)
         ))
@@ -172,7 +165,7 @@ with st.expander("📈 Broad Asset Class Performance", expanded=True):
     # Define asset tickers and names
     overview_assets = {
         "^GSPC": "S&P 500",
-        "DXY": "US Dollar Index", 
+        "DX-Y.NYB": "US Dollar Index", 
         "GLD": "Gold ETF",
         "USO": "Oil ETF",
         "TLT": "20+ Year Treasury"
