@@ -297,11 +297,70 @@ with st.expander("🇺🇸 US Major Indices", expanded=False):
             else:
                 st.warning(f"Insufficient data for {name} - need at least 50 data points for moving averages")
 
-# Currency Markets placeholder
+# Currency Markets
 with st.expander("💱 Major USD Currency Pairs", expanded=False):
-    st.info("💰 Currency market analysis coming in Phase 2...")
-    st.write("Will include: EUR/USD, GBP/USD, USD/JPY, USD/CHF, USD/CAD, AUD/USD")
-
+    st.subheader("Major USD Currency Pairs")
+    
+    # Define major USD currency pairs
+    currency_pairs = {
+        "EURUSD=X": "EUR/USD",
+        "GBPUSD=X": "GBP/USD", 
+        "USDJPY=X": "USD/JPY",
+        "USDCHF=X": "USD/CHF",
+        "USDCAD=X": "USD/CAD",
+        "AUDUSD=X": "AUD/USD"
+    }
+    
+    # Create two columns for layout
+    col1, col2 = st.columns(2)
+    
+    for i, (ticker, pair_name) in enumerate(currency_pairs.items()):
+        # Alternate between columns
+        with col1 if i % 2 == 0 else col2:
+            data = get_historical_data(ticker, selected_timeframe)
+            
+            if not data.empty:
+                # Create line chart
+                fig = go.Figure()
+                fig.add_trace(go.Scatter(
+                    x=data['Date'],
+                    y=data['Close'],
+                    mode='lines',
+                    name=pair_name,
+                    line=dict(width=2)
+                ))
+                
+                fig.update_layout(
+                    title=f"{pair_name} - {selected_timeframe}",
+                    xaxis_title="Date",
+                    yaxis_title="Exchange Rate",
+                    template='plotly_white',
+                    height=300,
+                    showlegend=False
+                )
+                
+                st.plotly_chart(fig, use_container_width=True)
+                
+                # Current rate info
+                if len(data) > 1:
+                    current_rate = data['Close'].iloc[-1]
+                    prev_rate = data['Close'].iloc[-2]
+                    change = current_rate - prev_rate
+                    change_pct = (change / prev_rate) * 100 if prev_rate > 0 else 0
+                    
+                    st.metric(
+                        label=f"Current {pair_name}",
+                        value=f"{current_rate:.4f}",
+                        delta=f"{change_pct:+.2f}%"
+                    )
+                else:
+                    st.metric(
+                        label=f"Current {pair_name}",
+                        value=f"{data['Close'].iloc[-1]:.4f}"
+                    )
+            else:
+                st.warning(f"No data available for {pair_name}")
+                
 # Commodities placeholder
 with st.expander("🛢️ Energy Complex", expanded=False):
     st.info("⚡ Energy commodities analysis coming in Phase 2...")
