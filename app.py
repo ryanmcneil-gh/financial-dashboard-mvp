@@ -37,7 +37,7 @@ if st.sidebar.button("🔄 Manual Refresh", help="Click to refresh all data"):
 # Add timezone info
 st.sidebar.info("🕐 All times displayed in EDT (Eastern Daylight Time)")
 
-# Placeholder for collapsible sections template
+# About This Dashboard Section
 with st.expander("ℹ️ About This Dashboard"):
     st.write("""
     This Financial Dashboard provides real-time market data and analysis across multiple asset classes:
@@ -169,7 +169,7 @@ with st.expander("📈 Broad Asset Class Performance", expanded=True):
     # Define asset tickers and names
     overview_assets = {
         "^GSPC": "S&P 500",
-        "DXY": "US Dollar Index", 
+        "DX-Y.NYB": "US Dollar Index", 
         "GLD": "Gold ETF",
         "USO": "Oil ETF",
         "TLT": "20+ Year Treasury"
@@ -232,10 +232,70 @@ with st.expander("📈 Broad Asset Class Performance", expanded=True):
     else:
         st.error("Unable to fetch data for market overview assets")
 
-# Equity Indices placeholder
+# US Major Indices
 with st.expander("🇺🇸 US Major Indices", expanded=False):
-    st.info("📊 US equity indices analysis coming in Phase 2...")
-    st.write("Will include: S&P 500, NASDAQ, Dow Jones, Russell 2000")
+    st.subheader("Major US Stock Indices")
+    
+    # Define major US indices
+    us_indices = {
+        "^GSPC": "S&P 500",
+        "^IXIC": "NASDAQ Composite", 
+        "^DJI": "Dow Jones Industrial",
+        "^RUT": "Russell 2000"
+    }
+    
+    # Create tabs for each index
+    tabs = st.tabs(list(us_indices.values()))
+    
+    for i, (ticker, name) in enumerate(us_indices.items()):
+        with tabs[i]:
+            # Fetch data with extra days for moving averages
+            data = get_historical_data(ticker, selected_timeframe)
+            
+            if not data.empty:
+                
+                # Create candlestick chart
+                fig = go.Figure()
+                
+                # Add candlestick
+                fig.add_trace(go.Candlestick(
+                    x=data['Date'],
+                    open=data['Open'],
+                    high=data['High'],
+                    low=data['Low'],
+                    close=data['Close'],
+                    name=name,
+                    showlegend=False
+                ))
+                
+                
+                fig.update_layout(
+                    title=f"{name} - {selected_timeframe}",
+                    xaxis_title="Date",
+                    yaxis_title="Price (USD)",
+                    template='plotly_white',
+                    height=400,
+                    xaxis_rangeslider_visible=False
+                )
+                
+                st.plotly_chart(fig, use_container_width=True)
+                
+                # Current price info
+                current_price = data['Close'].iloc[-1]
+                prev_price = data['Close'].iloc[-2] if len(data) > 1 else current_price
+                change = current_price - prev_price
+                change_pct = (change / prev_price) * 100 if prev_price > 0 else 0
+                
+                col1, col2, col3 = st.columns(3)
+                with col1:
+                    st.metric("Current Price", f"${current_price:.2f}")
+                with col2:
+                    st.metric("Change", f"${change:+.2f}", f"{change_pct:+.2f}%")
+                with col3:
+                    st.metric("Volume", f"{data['Volume'].iloc[-1]:,.0f}")
+                    
+            else:
+                st.warning(f"Insufficient data for {name} - need at least 50 data points for moving averages")
 
 # Currency Markets placeholder
 with st.expander("💱 Major USD Currency Pairs", expanded=False):
